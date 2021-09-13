@@ -30,27 +30,26 @@ class FormularioTransferencia extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Editor(Icons.monetization_on,_controladorCampoNumeroConta, rotulo:  'Número da Conta',dica:  '0000'),
-          Editor(Icons.monetization_on, _controladorCampoNumeroConta, rotulo: 'Valor', dica: '0.00'),
+          Editor(Icons.monetization_on, _controladorCampoNumeroConta,
+              rotulo: 'Número da Conta', dica: '0000'),
+          Editor(Icons.monetization_on, _controladorCampoValor,
+              rotulo: 'Valor', dica: '0.00'),
           RaisedButton(
               child: Text('Confirmar'),
-              onPressed: () {
-                final int numeroConta =
-                    int.parse(_controladorCampoNumeroConta.text);
-                final double valor = double.parse(_controladorCampoValor.text);
-                if (numeroConta != null && valor != null) {
-                  Transferencia(valor, numeroConta);
-                  @override
-                  String toString() {
-                    return 'FormularioTransferencia{_controladorCampoNumeroConta: $_controladorCampoNumeroConta, _controladorCampoValor: $_controladorCampoValor}';
-                  }
-
-                  print(toString());
-                }
-              }),
+              onPressed: ()=> _criaTransferencia(context),
+          )
         ],
       ),
     );
+  }
+
+  void _criaTransferencia(BuildContext  context) {
+    final int numeroConta = int.parse(_controladorCampoNumeroConta.text);
+    final double valor = double.parse(_controladorCampoValor.text);
+    if (numeroConta != null && valor != null) {
+      final transferenciaCriada = Transferencia(valor, numeroConta);
+      Navigator.pop(context,transferenciaCriada);
+    }
   }
 }
 
@@ -73,9 +72,14 @@ class ListaTransferencia extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
+          final Future<Transferencia?> future =Navigator.push(context, MaterialPageRoute(builder: (context) {
             return FormularioTransferencia();
           }));
+          future.then((transferenciaRecebida){
+            debugPrint('chegou no the do future');
+
+            debugPrint('$transferenciaRecebida');
+          });
         },
       ),
     );
@@ -113,7 +117,7 @@ class Editor extends StatelessWidget {
   final String dica;
   final IconData icone;
 
-  Editor(this.icone ,  this.controlador , {this.rotulo = "",  this.dica = ""});
+  Editor(this.icone, this.controlador, {this.rotulo = "", this.dica = ""});
 
   @override
   Widget build(BuildContext context) {
